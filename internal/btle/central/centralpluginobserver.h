@@ -23,6 +23,7 @@ namespace btle {
             virtual void device_characteristic_notify_data_updated(device& dev, service& srv, characteristic& chr, std::string& data) = 0;
             virtual void device_rssi_read(device& dev, int rssi)=0;
             virtual void device_services_invalidated(device& dev)=0;
+            virtual void device_connection_parameters_updated(device& dev)=0;
         };
     }
 }

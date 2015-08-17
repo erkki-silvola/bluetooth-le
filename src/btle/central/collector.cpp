@@ -817,6 +817,11 @@ void collector::device_services_invalidated(device& dev)
     // TODO
 }
 
+void collector::device_connection_parameters_updated(device& dev)
+{
+    _log("device connection parameters updated: %s",dev.parameters().description().c_str());
+}
+
 void collector::new_device_discovered_cb(device& dev)
 {
     _log("info: %s",dev.description().c_str());
@@ -889,11 +894,6 @@ void collector::device_btle_ftp_in_progress(device& dev, double progress, const 
 void collector::device_btle_ftp_out_progress(device& dev, double progress, int identifier)
 {
     _log("File progress procentage: %d file identifier: %i",progress,identifier);
-}
-
-void collector::device_connection_parameters_updated(device& dev)
-{
-    _log("device connection paramters updated: %s",dev.parameters().description().c_str());
 }
 
 btle::device* collector::fetch_device(const bda& addr)

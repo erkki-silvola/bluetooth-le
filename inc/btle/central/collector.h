@@ -125,6 +125,8 @@ namespace btle {
             void device_characteristic_notify_data_updated(device& dev, service& srv, characteristic& chr, std::string &data);
             void device_rssi_read(device& dev, int rssi);
             void device_services_invalidated(device& dev);
+        public:
+            virtual void device_connection_parameters_updated(device& dev);
 
         public: // callbacks
 
@@ -171,7 +173,6 @@ namespace btle {
             virtual void plugin_state_changed_cb(plugin_state state);
             virtual void device_btle_ftp_in_progress(device& dev, double progress, const std::string& data, int identifier);
             virtual void device_btle_ftp_out_progress(device& dev, double progress, int identifier);
-            virtual void device_connection_parameters_updated(device& dev);
 
         public:
 

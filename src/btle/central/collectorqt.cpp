@@ -52,3 +52,7 @@ void collectorqt::device_state_changed_cb(device& dev)
     emit signal_device_state_changed(&dev);
 }
 
+void collectorqt::device_connection_parameters_updated(device& dev)
+{
+
+}

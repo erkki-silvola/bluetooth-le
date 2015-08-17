@@ -20,6 +20,10 @@ namespace btle {
     public: //
 
         uint16_t interval() const;
+        uint16_t interval_min() const;
+        uint16_t interval_max() const;
+        uint16_t latency() const;
+        uint16_t timeout() const;
 
     public: // from base
 
@@ -30,6 +34,8 @@ namespace btle {
         uint16_t connection_interval_;
         uint16_t connection_latency_;
         uint16_t connection_timeout_;
+        uint16_t connection_interval_min_;
+        uint16_t connection_interval_max_;
         /*
             add later these
         uint8_t  clock_accuracy_;

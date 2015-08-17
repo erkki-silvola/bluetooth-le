@@ -34,8 +34,14 @@ hciupdateconnmessage::hciupdateconnmessage(int handle, centralpluginobserver* ob
 
 void hciupdateconnmessage::process(bluezperipheraldevice* dev)
 {
-    // TODO add rest connection parameters
-    hci_le_conn_update(handle_,dev->connection_handle(),parameters_.interval(),0,0,0,0);
+    if( !hci_le_conn_update(handle_,
+                       dev->connection_handle(),
+                       parameters_.interval_min(),
+                       parameters_.interval_max(),
+                       parameters_.latency(),
+                       parameters_.timeout(),
+                       0) )
+    {
 
-    // TODO add observer callback
+    }
 }

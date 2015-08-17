@@ -24,6 +24,7 @@ namespace btle {
             void device_characteristic_discovery_failed_cb(device& dev, const service& srv, const chr_list& chrs, const error& err);
             void device_characteristic_read_cb(device& dev, const service& srv, const characteristic& chrs, const std::string& data, const error& err);
             void device_state_changed_cb(device& dev);
+            void device_connection_parameters_updated(device& dev);
 
         signals:
 

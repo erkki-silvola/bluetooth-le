@@ -13,7 +13,9 @@ connectionparameters::connectionparameters()
 : base("","Connection parameters not available!"),
   connection_interval_(0),
   connection_latency_(0),
-  connection_timeout_(0)
+  connection_timeout_(0),
+  connection_interval_min_(0),
+  connection_interval_max_(0)
 {
 }
 
@@ -33,6 +35,26 @@ connectionparameters::connectionparameters(
 uint16_t connectionparameters::interval() const
 {
     return connection_interval_;
+}
+
+uint16_t connectionparameters::interval_min() const
+{
+    return connection_interval_min_;
+}
+
+uint16_t connectionparameters::interval_max() const
+{
+    return connection_interval_max_;
+}
+
+uint16_t connectionparameters::latency() const
+{
+    return connection_latency_;
+}
+
+uint16_t connectionparameters::timeout() const
+{
+    return connection_timeout_;
 }
 
 void connectionparameters::invalidate()
