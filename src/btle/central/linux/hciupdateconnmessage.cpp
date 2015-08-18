@@ -42,6 +42,6 @@ void hciupdateconnmessage::process(bluezperipheraldevice* dev)
                        parameters_.timeout(),
                        0) )
     {
-
+        observer_->device_connection_parameters_updated(*dev);
     }
 }

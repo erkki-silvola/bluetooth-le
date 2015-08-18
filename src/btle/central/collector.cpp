@@ -357,17 +357,17 @@ void collector::read_characteristic_value(device& dev, const uuid& uid)
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
-        if( const characteristic* chr = dev.db().fetch_characteristic(uid) )
+        for( btle::service_iterator_const its = dev.db().services().begin(); ++its; its != dev.db().services().end() )
         {
-            if( chr->properties() & btle::GATT_READ )
+            for(chr_iterator_const it_chr = it_srv->characteristics().begin(); it_chr != it_srv->characteristics().end(); ++it_chr )
             {
-                const service* srv = dev.db().fetch_service_by_chr_uuid(uid);
-                verify(srv);
-                plugin_->read_characteristic_value(dev,*srv,*chr);
-                return;
+                if( it_chr->uuid() == uid )
+                {
+                    plugin_->read_characteristic_value(dev,*srv,*chr);
+                }
             }
-            throw btle::exceptions::attribute_not_readable("attribute cannot be read");
         }
+        if( dev.db().fetch_characteristic(uid) ) return;
         throw btle::exceptions::attribute_not_found("device does not contain this uuid");
     }
     throw btle::exceptions::device_not_connected("device not connected device is in state: " + dev.state_string());
