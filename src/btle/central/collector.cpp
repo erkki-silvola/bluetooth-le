@@ -357,13 +357,13 @@ void collector::read_characteristic_value(device& dev, const uuid& uid)
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
-        for( btle::service_iterator_const its = dev.db().services().begin(); ++its; its != dev.db().services().end() )
+        for( btle::service_iterator its = dev.db().services().begin(); its != dev.db().services().end(); ++its )
         {
-            for(chr_iterator_const it_chr = it_srv->characteristics().begin(); it_chr != it_srv->characteristics().end(); ++it_chr )
+            for(chr_iterator it_chr = its->characteristics().begin(); it_chr != its->characteristics().end(); ++it_chr )
             {
                 if( it_chr->uuid() == uid )
                 {
-                    plugin_->read_characteristic_value(dev,*srv,*chr);
+                    plugin_->read_characteristic_value(dev,*its,*it_chr);
                 }
             }
         }

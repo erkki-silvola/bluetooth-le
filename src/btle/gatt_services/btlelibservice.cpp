@@ -47,10 +47,11 @@ void btlelibservice::process_service_notify_data(const uuid& chr, const uint8_t*
         }
         else
         {
-            in_mutex_.lock();
+            in_queue_.push_notify(std::string((const char*)data,size));
+            /*in_mutex_.lock();
             in_.push_back(std::string((const char*)data,size));
             in_cond_.notify_all();
-            in_mutex_.unlock();
+            in_mutex_.unlock();*/
         }
     }
 }
@@ -218,12 +219,12 @@ void btlelibservice::in_queue()
 
     do{
         {
-            std::unique_lock<std::mutex> lock(in_mutex_);
-            in_cond_.wait(lock);
+            //std::unique_lock<std::mutex> lock(in_mutex_);
+            //in_cond_.wait(lock);
         }
-        if(in_.size())
+        //if(in_.size())
         {
-            std::string packet = take_front(in_,in_mutex_);
+            std::string packet = in_queue_.pop_wait();//take_front(in_,in_mutex_);
             first_air_packet sof={0};
             memcpy(&sof,packet.c_str(),packet.size());
             listener_->in_progress(origin_,sof.identifier,((packet.size()-3)/sof.file_size)*100.0);

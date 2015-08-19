@@ -4,6 +4,7 @@
 #include <deque>
 // C++ 11
 #include <mutex>
+#include <condition_variable>
 
 namespace btle {
     template<typename T>
@@ -17,14 +18,18 @@ namespace btle {
         typedef typename std::deque<T>::const_iterator list_iterator_const;
 
         atomiclist();
-        void push_back(const T& object);
+        void push(const T& object);
+        void push_notify(const T& object);
         size_t size();
-        T take_front();
+        T pop();
+        T pop_wait();
+        T pop_wait(int seconds);
 
     private:
 
         std::deque<T> list_;
         std::mutex mutex_;
+        std::condition_variable cond_;
     };
 
     #include "atomiclist.hpp"

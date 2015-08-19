@@ -5,7 +5,7 @@
 #include "btle/gatt_services/gattservicebase.h"
 #include "btle/gatt_services/gattservicetx.h"
 #include "btle/central/centralbtleftptransferinterface.h"
-
+#include "btle/atomiclist.h"
 
 #include <deque>
 
@@ -130,6 +130,7 @@ namespace btle {
             central::centralbtleftptransferinterface* tx_;
             device* origin_;
             btlelibservicetransferlistener* listener_;
+            btle::atomiclist<std::string> in_queue_;
         };
     }
 }

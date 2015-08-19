@@ -9,30 +9,57 @@ atomiclist<T>::atomiclist()
 }
 
 template <typename T>
-void atomiclist<T>::push_back(const T& object)
+void atomiclist<T>::push(const T& object)
 {
     std::unique_lock<std::mutex> lock(mutex_);
     list_.push_back(object);
 }
 
 template <typename T>
-size_t atomiclist<T>::size()
+void atomiclist<T>::push_notify(const T& object)
 {
-    mutex_.lock();
-    size_t size(list_.size());
-    mutex_.unlock();
-    return size;
+    std::unique_lock<std::mutex> lock(mutex_);
+    cond_.notify_all();
+    list_.push_back(object);
 }
 
 template <typename T>
-T atomiclist<T>::take_front()
+size_t atomiclist<T>::size()
 {
-    mutex_.lock();
-    T = list_.front();
-    list_.pop_front();
-    mutex_.unlock();
-    return T;
+    std::unique_lock<std::mutex> lock(mutex_);
+    return list_.size();
 }
+
+template <typename T>
+T atomiclist<T>::pop()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    T ret = list_.front();
+    list_.pop_front();
+    return ret;
+}
+
+template <typename T>
+T atomiclist<T>::pop_wait()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if(!list_.size()) cond_.wait(lock);
+    T ret = list_.front();
+    list_.pop_front();
+    return ret;
+}
+
+template <typename T>
+T atomiclist<T>::pop_wait(int seconds)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if(!list_.size()) cond_.wait_for(lock,std::chrono::seconds(seconds));
+    T ret= list_.front();
+    list_.pop_front();
+    return ret;
+}
+
+
 
 #endif // ATOMICLIST_HPP
 
