@@ -61,9 +61,10 @@ void l2capsocket::disconnect()
     ::close(fd_);
 }
 
-void l2capsocket::write(const std::string &packet)
+int l2capsocket::write(const std::string &packet)
 {
-    switch(int err = ::write(fd_,packet.data(),packet.size()))
+    return ::write(fd_,packet.data(),packet.size());
+    /*switch(int err = ::write(fd_,packet.data(),packet.size()))
     {
         case 0:
             break;
@@ -75,6 +76,25 @@ void l2capsocket::write(const std::string &packet)
         default:
         {
             _log("bytes written: %i",err);
+            break;
+        }
+    }
+    return err;*/
+}
+
+std::string l2capsocket::read_packet()
+{
+    uint8_t buffer[1024];
+    switch(int err = ::read(fd_,&buffer,1024))
+    {
+        case -1:
+        {
+            // TODO
+            return "";
+        }
+        default:
+        {
+            return std::string((const char*)&buffer,err);
             break;
         }
     }

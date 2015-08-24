@@ -3,6 +3,7 @@
 
 #include "btle/device.h"
 #include "btle/central/linux/messagebase.h"
+#include "btle/central/linux/l2capsocket.h"
 
 #include <mutex>
 #include <condition_variable>
@@ -28,6 +29,8 @@ namespace btle {
                 messages queue_;
                 std::mutex q_mutex_;
                 std::condition_variable q_condition_;
+            public:
+                l2capsocket att_socket_;
             };
         }
     }

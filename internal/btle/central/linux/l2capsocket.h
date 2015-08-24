@@ -14,7 +14,8 @@ namespace btle {
             public:
                 void connect(const bda& addr, unsigned int channel_id);
                 void disconnect();
-                void write(const std::string& packet);
+                int write(const std::string& packet);
+                std::string read_packet();
             private:
                 int fd_;
             };

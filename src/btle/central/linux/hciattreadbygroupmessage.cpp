@@ -38,36 +38,37 @@ void hciattreadbygroupmessage::process(bluezperipheraldevice *dev)
     std::memcpy(&packet[0],&start_handle_,sizeof(start_handle_));
     std::memcpy(&packet[sizeof(start_handle_)],&end_handle_,sizeof(end_handle_));
     std::memcpy(&packet[sizeof(start_handle_)+sizeof(end_handle_)],&primary_service,sizeof(primary_service));
-
-    switch( int ret = ::write(handle_,&packet,6) )
+    if( dev->att_socket_.write(std::string((const char*)packet,6)) > 0 )
     {
-        case -1:
+        std::string packet = dev->att_socket_.read_packet();
+        if(packet.size())
         {
-            break;
-        }
-        default:
-        {
-            uint8_t buffer[1024];
-            switch( ret = ::read(handle_,&buffer,1024) )
+            switch(*packet.c_str())
             {
-                case -1:
+                case 0x01: // att error
                 {
+                    break;
+                }
+                case 0x11: // att read by group type
+                {
+                    int len(*packet.c_str());
+                    int count(packet.size()-1/len);
+                    for(;;)
+                    {
+                        uint16_t start(0);
+                        uint16_t end(0);
+                        memcpy(&start,packet.c_str(),sizeof(start));
+                        memcpy(&end,packet.c_str()+sizeof(start),sizeof(end));
+                        //btle::uuid uid();
+                    }
                     break;
                 }
                 default:
                 {
-                switch (buffer[0]) {
-                    case 0x11: // read by group type response
-
-                        break;
-                    default:
-                        // forward all other message to some base handler
-                        break;
-                    }
+                    // TODO forward to device to handle
                     break;
                 }
             }
-            break;
         }
     }
 }
