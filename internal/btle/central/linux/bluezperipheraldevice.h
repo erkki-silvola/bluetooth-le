@@ -4,6 +4,7 @@
 #include "btle/device.h"
 #include "btle/central/linux/messagebase.h"
 #include "btle/central/linux/l2capsocket.h"
+#include "btle/atomiclist.h"
 
 #include <mutex>
 #include <condition_variable>
@@ -20,15 +21,18 @@ namespace btle {
 
                 void push(messagebase* message);
 
-            private:
+            public:
 
                 void message_thread();
 
             private:
 
-                messages queue_;
-                std::mutex q_mutex_;
+                std::thread thread_;
+                messages    queue_;
+                std::mutex  q_mutex_;
                 std::condition_variable q_condition_;
+                std::condition_variable started_;
+                btle::atomiclist<messagebase*> messages_;
             public:
                 l2capsocket att_socket_;
             };

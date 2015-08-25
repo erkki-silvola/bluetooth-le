@@ -29,7 +29,8 @@ SOURCES += \
     src/btle/central/linux/attclient.cpp \
     src/btle/central/linux/l2capsocket.cpp \
     src/btle/central/linux/hciupdateconnmessage.cpp \
-    src/btle/central/linux/hciattreadbygroupmessage.cpp
+    src/btle/central/linux/hciattreadbygroupmessage.cpp \
+    src/btle/central/linux/messagebase.cpp
 # end
 
 SOURCES += \

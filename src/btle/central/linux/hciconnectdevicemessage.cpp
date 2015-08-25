@@ -34,15 +34,17 @@ hciconnectdevicemessage::hciconnectdevicemessage(int handle,centralpluginobserve
 
 void hciconnectdevicemessage::process(bluezperipheraldevice* dev)
 {
-    bdaddr_t bdaddr;
+    bdaddr_t bdaddr={0};
     uint16_t interval, latency, max_ce_length, max_interval, min_ce_length;
     uint16_t min_interval, supervision_timeout, window;
     uint8_t initiator_filter, own_bdaddr_type, peer_bdaddr_type;
     peer_bdaddr_type = (uint8_t)dev->addr().type();
     initiator_filter = 0;
 
-    memset(&bdaddr, 0, sizeof(bdaddr_t));
-    memcpy(&bdaddr,dev->addr().string_value().c_str(),6);
+    for(int i=5; i!=-1; --i)
+    {
+        bdaddr.b[i]=*(dev->addr().string_value().c_str()+i);
+    }
     interval = htobs(0x0004);
     window = htobs(0x0004);
     own_bdaddr_type = 0x00;

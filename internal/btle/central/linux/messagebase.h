@@ -10,6 +10,7 @@ namespace btle {
             class bluezperipheraldevice;
             class messagebase{
             public:
+                virtual ~messagebase();
                 virtual void process(bluezperipheraldevice* dev)=0;
             };
 

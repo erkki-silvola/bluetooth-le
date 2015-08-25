@@ -59,7 +59,4 @@ T atomiclist<T>::pop_wait(int seconds)
     return ret;
 }
 
-
-
 #endif // ATOMICLIST_HPP
-

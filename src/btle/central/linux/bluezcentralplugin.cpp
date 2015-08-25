@@ -3,6 +3,7 @@
 #include "btle/central/linux/bluezcentralplugin.h"
 #include "btle/central/centralpluginregisterer.h"
 #include "btle/central/linux/hciconnectdevicemessage.h"
+#include "btle/central/linux/hciattreadbygroupmessage.h"
 #include "btle/log.h"
 #include "btle_global.h"
 #include "btle/utility.h"
@@ -109,8 +110,8 @@ void bluezcentralplugin::scan_routine()
                     case 0x02:
                     {
                         info = (le_advertising_info *) (meta->data + 1);
-                        qDebug() << QString::fromStdString(utility::to_hex_string(info->data,info->length));
-                        qDebug() << "thread id: " << QThread::currentThreadId();
+                        //qDebug() << QString::fromStdString(utility::to_hex_string(info->data,info->length));
+                        //qDebug() << "thread id: " << QThread::currentThreadId();
 
                         adv_fields fields;
                         process_adv_data(fields,info->data,info->length);
@@ -240,7 +241,8 @@ void bluezcentralplugin::cancel_pending_connection(device& dev)
 
 void bluezcentralplugin::discover_services(device& dev)
 {
-
+    bluezperipheraldevice* bdev = reinterpret_cast<bluezperipheraldevice*>(&dev);
+    bdev->push(new hciattreadbygroupmessage(handle_,&observer_,0x0001,0xFFFF));
 }
 
 void bluezcentralplugin::discover_characteristics(device& dev, const service& srv)
