@@ -12,7 +12,7 @@ namespace btle {
             public:
                 l2capsocket();
             public:
-                void connect(const bda& addr, unsigned int channel_id);
+                int connect(const bda& addr, unsigned int channel_id);
                 void disconnect();
                 int write(const std::string& packet);
                 std::string read_packet();

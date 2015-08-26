@@ -24,7 +24,7 @@ l2capsocket::l2capsocket()
 {
 }
 
-void l2capsocket::connect(const bda &addr, unsigned int channel_id)
+int l2capsocket::connect(const bda &addr, unsigned int channel_id)
 {
     fd_ = socket(PF_BLUETOOTH,SOCK_SEQPACKET,BTPROTO_L2CAP);
     if(fd_!=-1)
@@ -54,6 +54,7 @@ void l2capsocket::connect(const bda &addr, unsigned int channel_id)
 
         }
     }
+    return fd_;
 }
 
 void l2capsocket::disconnect()

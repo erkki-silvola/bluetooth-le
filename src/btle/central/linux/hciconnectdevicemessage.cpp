@@ -62,6 +62,8 @@ void hciconnectdevicemessage::process(bluezperipheraldevice* dev)
     min_ce_length, max_ce_length, &device_handle, 25000);
     if( err == 0 )
     {
+        dev->set_connection_handle(handle_);
+        dev->att_socket_.connect(dev->addr(),4);
         observer_->device_connected(*dev);
     }
     else
