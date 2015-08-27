@@ -585,18 +585,18 @@ void collector::device_state_changed(btle::device& dev)
 
 void collector::aquire_start_scan()
 {
-    verify(plugin_)
+/*    verify(plugin_)
     flags_ |= INTERNAL_SCAN;
     if( state_ == STATE_POWERED_ON ) plugin_->start_scan();
-    else _log_error("BT NOT POWERED!");
+    else _log_error("BT NOT POWERED!");*/
 }
 
 void collector::aquire_stop_scan()
 {
-    verify(plugin_)
+/*    verify(plugin_)
     flags_ &= ~INTERNAL_SCAN;
     if( state_ == STATE_POWERED_ON ) plugin_->stop_scan();
-    else _log_error("BT NOT POWERED!");
+    else _log_error("BT NOT POWERED!");*/
 }
 
 void collector::aquire_connect_device(btle::device& dev)

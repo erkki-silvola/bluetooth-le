@@ -166,7 +166,8 @@ void bluezcentralplugin::scan_routine()
 
 const std::string& bluezcentralplugin::name()
 {
-    return "LINUX_CENTRAL";
+    static std::string lname("LINUX_CENTRAL");
+    return lname;
 }
 
 std::vector<device*>& bluezcentralplugin::devices()
@@ -207,20 +208,29 @@ void bluezcentralplugin::start_scan(central_scan_parameters param, const uuid_li
 {
     // TODO change from full window to approx. 80%
     int err(0);
-    if( (err = hci_le_set_scan_parameters(handle_, 0x01, htobs(0x0010), htobs(0x0010), 0x00, 0x00, 1000)) == 0)
+    if( (err = hci_le_set_scan_parameters(handle_, 0x01, htobs(0x0012), htobs(0x0010), 0x00, 0x00, 1000)) == 0)
     {
         if( (err = hci_le_set_scan_enable(handle_, 0x01, 1, 1000)) == 0)
         {
             _log("le scanning...");
+            return;
         }
-        else _log_error(" err: %i",err);
+        _log_error(" err: %i",err);
     }
-    else _log_error(" err: %i",err);
+    _log_error(" err: %i",err);
+    perror("error");
 }
 
 void bluezcentralplugin::stop_scan()
 {
-
+    int err(0);
+    if( (err = hci_le_set_scan_enable(handle_,0x00,1,1000)) == 0 )
+    {
+        _log("le scanning disabled");
+        return;
+    }
+    _log_error("err: %i",err);
+    perror("error");
 }
 
 void bluezcentralplugin::connect_device(device& dev)

@@ -68,6 +68,7 @@ void hciconnectdevicemessage::process(bluezperipheraldevice* dev)
     }
     else
     {
+        perror("connection error");
         observer_->device_disconnected(*dev);
     }
 }

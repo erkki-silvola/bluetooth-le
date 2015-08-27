@@ -51,7 +51,8 @@ void log::trace(const char* tag,const char* method, const char* format, ...)
         std::stringstream ss;
         std::string buf(LOG_BUFFER_SIZE, 0);
         va_start(ap, format);
-        vsnprintf(const_cast<char*>(buf.data()),LOG_BUFFER_SIZE,format,ap);
+        size_t size(vsnprintf(const_cast<char*>(buf.data()),LOG_BUFFER_SIZE,format,ap));
+        buf.resize(size);
         va_end(ap);
         ss << '[' << tag << ']' << '[' << method << "] " << buf;
         if( options_ & LOG_PRINT )
