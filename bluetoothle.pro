@@ -211,9 +211,11 @@ win{
 }
 
 linux{
-    LIBS += -lbluetooth
+    LIBS += -lbluetooth -lglib-2.0
     # linux compilation requires gcc 4.9 or newer
     QMAKE_CXXFLAGS += -std=gnu++11
+    CONFIG += link_pkgconfig
+    PKGCONFIG += glib-2.0
     SOURCES += \
         src/btle/timer_posix.cpp \
         src/btle/central/linux/bluezcentralplugin.cpp \

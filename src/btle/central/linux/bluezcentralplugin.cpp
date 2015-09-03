@@ -201,12 +201,12 @@ int bluezcentralplugin::start()
 
 void bluezcentralplugin::stop()
 {
+    // TODO join main_routine
     hci_close_dev(handle_);
 }
 
 void bluezcentralplugin::start_scan(central_scan_parameters param, const uuid_list* services )
 {
-    // TODO change from full window to approx. 80%
     int err(0);
     if( (err = hci_le_set_scan_parameters(handle_, 0x01, htobs(0x0012), htobs(0x0010), 0x00, 0x00, 1000)) == 0)
     {
