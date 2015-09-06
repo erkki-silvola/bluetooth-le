@@ -22,7 +22,9 @@ HEADERS += \
     internal/btle/central/linux/l2capsocket.h \
     internal/btle/central/linux/hciupdateconnmessage.h \
     internal/btle/central/linux/hciattreadbygroupmessage.h \
-    internal/btle/central/linux/hciattreadbytypemessage.h
+    internal/btle/central/linux/hciattreadbytypemessage.h \
+    internal/btle/central/linux/hciattreadmessage.h \
+    internal/btle/central/linux/hciattwritemessage.h
 
 SOURCES += \
     src/btle/gatt_services/btlelibservice.cpp \
@@ -32,7 +34,9 @@ SOURCES += \
     src/btle/central/linux/hciupdateconnmessage.cpp \
     src/btle/central/linux/hciattreadbygroupmessage.cpp \
     src/btle/central/linux/messagebase.cpp \
-    src/btle/central/linux/hciattreadbytypemessage.cpp
+    src/btle/central/linux/hciattreadbytypemessage.cpp \
+    src/btle/central/linux/hciattreadmessage.cpp \
+    src/btle/central/linux/hciattwritemessage.cpp
 # end
 
 SOURCES += \
