@@ -112,7 +112,7 @@ const uuid& characteristic::uuid() const
     return uuid_;
 }
 
-uint8_t characteristic::attribute_handle() const
+uint16_t characteristic::attribute_handle() const
 {
     return attribute_handle_;
 }

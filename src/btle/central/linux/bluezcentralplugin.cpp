@@ -4,6 +4,10 @@
 #include "btle/central/centralpluginregisterer.h"
 #include "btle/central/linux/hciconnectdevicemessage.h"
 #include "btle/central/linux/hciattreadbygroupmessage.h"
+#include "btle/central/linux/hciattreadbytypemessage.h"
+#include "btle/central/linux/hciattreadmessage.h"
+#include "btle/central/linux/hciattwritemessage.h"
+
 #include "btle/log.h"
 #include "btle_global.h"
 #include "btle/utility.h"
@@ -262,12 +266,14 @@ void bluezcentralplugin::discover_characteristics(device& dev, const service& sr
 
 void bluezcentralplugin::read_characteristic_value(device& dev,const service& srv, const characteristic& chr)
 {
-
+    bluezperipheraldevice* bdev = reinterpret_cast<bluezperipheraldevice*>(&dev);
+    bdev->push(new hciattreadmessage(handle_,&observer_,srv,chr));
 }
 
 void bluezcentralplugin::write_characteristic_value(device& dev,const service& srv, const characteristic& chr, const std::string& data, characteristic_properties type)
 {
-
+    bluezperipheraldevice* bdev = reinterpret_cast<bluezperipheraldevice*>(&dev);
+    bdev->push(new hciattwritemessage(handle_,&observer_,srv,chr));
 }
 
 void bluezcentralplugin::set_characteristic_notify(device& dev,const service& srv, const characteristic& chr, bool notify)

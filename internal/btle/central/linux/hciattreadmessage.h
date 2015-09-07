@@ -2,7 +2,7 @@
 #define HCIATTREADMESSAGE_H
 
 #include "btle/central/linux/messagebase.h"
-#include "btle_global.h"
+#include "btle/service.h"
 
 namespace btle {
     namespace central {
@@ -14,7 +14,8 @@ namespace btle {
 
                     hciattreadmessage( int handle,
                                        centralpluginobserver* observer,
-                                       uint16_t att_handle);
+                                       const service& srv,
+                                       const characteristic& chr);
 
                 public:
 
@@ -22,8 +23,10 @@ namespace btle {
 
                 private:
 
-                    uint16_t att_handle_;
                     int handle_;
+                    centralpluginobserver* observer_;
+                    service srv_;
+                    characteristic chr_;
                 };
             }
         }
