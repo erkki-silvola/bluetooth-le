@@ -23,7 +23,11 @@ namespace btle {
             CONNECTION_DIRECT                  = 0x01,
             CONNECTION_TIMEOUT                 = 0x02,
             DISCONNECTION_TIMEOUT              = 0x04,
-            RECONNECTION_TRYES                 = 0x08
+            RECONNECTION_TRYES                 = 0x08,
+            /**
+             * Parallel connection option, in version 3.x.x onwards
+             */
+            EXCUTE_PARALLEL                    = 0x10
         };
 
         class connectionhandler;

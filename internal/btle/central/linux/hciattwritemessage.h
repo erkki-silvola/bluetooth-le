@@ -17,16 +17,29 @@ namespace btle {
                                         const service& srv,
                                         const characteristic& chr);
 
+                    hciattwritemessage( int handle,
+                                        centralpluginobserver* observer,
+                                        const service& srv,
+                                        const characteristic& chr,
+                                        const descriptor& desc);
+
                 public:
 
                     void process(bluezperipheraldevice* dev);
 
                 private:
 
+                    enum write_type{
+                        characteristic_write,
+                        descriptor_write
+                    };
+
                     int handle_;
                     centralpluginobserver* observer_;
                     service srv_;
                     characteristic chr_;
+                    descriptor desc_;
+                    write_type type_;
                 };
             }
         }

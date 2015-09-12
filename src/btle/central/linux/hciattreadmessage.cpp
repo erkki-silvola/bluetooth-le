@@ -43,7 +43,8 @@ void hciattreadmessage::process(bluezperipheraldevice *dev)
 {
     uint8_t packet[3]={0};
     packet[0]=0x0A; // read
-  //  memcpy(&packet[1],&chr_.attribute_handle(),sizeof(chr_.attribute_handle()));
+    uint16_t handle(chr_.attribute_handle());
+    memcpy(&packet[1],&handle,sizeof(chr_.attribute_handle()));
     if( int err = dev->att_socket_.write(std::string((const char*)&packet,3)) )
     {
 
