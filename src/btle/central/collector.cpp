@@ -209,9 +209,12 @@ void collector::clear_scan_filters()
 void collector::start_scan()
 {
     verify(plugin_)
-    flags_ |= CLIENT_SCAN;
-    if( state_ == STATE_POWERED_ON ) plugin_->start_scan();
-    else _log_warning("BT STATE NOT POWERED!");
+    if(!(flags_ & CLIENT_SCAN))
+    {
+        flags_ |= CLIENT_SCAN;
+        if( state_ == STATE_POWERED_ON ) plugin_->start_scan();
+        else _log_warning("BT STATE NOT POWERED!");
+    }
 }
 
 /**
@@ -220,9 +223,12 @@ void collector::start_scan()
 void collector::stop_scan()
 {
     verify(plugin_)
-    flags_ &= ~CLIENT_SCAN;
-    // should be safe to call stop even if not powered
-    plugin_->stop_scan();
+    if(flags_ & CLIENT_SCAN)
+    {
+        flags_ &= ~CLIENT_SCAN;
+        // should be safe to call stop even if not powered
+        plugin_->stop_scan();
+    }
 }
 
 /**

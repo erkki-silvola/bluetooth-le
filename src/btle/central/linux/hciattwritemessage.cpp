@@ -76,12 +76,17 @@ void hciattwritemessage::process(bluezperipheraldevice *dev)
                 case CLIENT_CHARACTERISTIC_CONFIGURATION:
                 {
                     //
-                    if( int err = dev->att_socket_.write(std::string("\x01\x00",2)) )
+                    if( int err = dev->att_socket_.write(std::string( desc_.is_notifying() ?
+                                                                      (chr_.properties() & GATT_NOTIFY ?
+                                                                      "\x01\x00" : "\x02\x00")
+                                                                      : (chr_.properties() & GATT_NOTIFY ?
+                                                                         "\x00\x00" : "\x01\x00") ,2)) )
                     {
 
                     }
                     break;
                 }
+
             }
             break;
         }
