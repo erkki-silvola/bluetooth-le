@@ -25,7 +25,7 @@ namespace {
         
     };
 
-    // allways enable service changed notification ?
+    // allways enable service changed notification
     #define SERVICE_CHANGED                             0x2A05
 
     // commonly read these chrs

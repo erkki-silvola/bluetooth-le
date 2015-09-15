@@ -206,13 +206,36 @@ int bluezcentralplugin::start()
 void bluezcentralplugin::stop()
 {
     // TODO join main_routine
+    // TODO release device memory
     hci_close_dev(handle_);
 }
 
 void bluezcentralplugin::start_scan(central_scan_parameters param, const uuid_list* services )
 {
     int err(0);
-    if( (err = hci_le_set_scan_parameters(handle_, 0x01, htobs(0x0012), htobs(0x0010), 0x00, 0x00, 1000)) == 0)
+    uint16_t interval(0x0012);
+    uint16_t window(0);
+    switch(param){
+        case SCAN_HIGH_DUTY:
+        {
+            window = 0x0010;
+            break;
+        }
+        case SCAN_MEDIUM_DUTY:
+        {
+            window = 0x0008;
+            break;
+        }
+        case SCAN_LOW_DUTY:
+        {
+            window = 0x0005;
+            break;
+        }
+        default:
+            assert(false);
+    }
+
+    if( (err = hci_le_set_scan_parameters(handle_, 0x01, (interval), (window), 0x00, 0x00, 1000)) == 0)
     {
         if( (err = hci_le_set_scan_enable(handle_, 0x01, 1, 1000)) == 0)
         {
