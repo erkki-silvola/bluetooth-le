@@ -67,7 +67,7 @@ namespace btle {
              * @brief name
              * @return
              */
-            virtual const std::string& name() = 0;
+            virtual std::string name() = 0;
 
             /**
              * @brief devices

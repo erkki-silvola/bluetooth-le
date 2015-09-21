@@ -352,12 +352,11 @@ corebluetoothcentralplugin::corebluetoothcentralplugin(centralpluginobserver &ob
 {
 }
 
-const std::string& corebluetoothcentralplugin::name()
+std::string corebluetoothcentralplugin::name()
 {
     func_log
 
-    static std::string name = "APPLE";
-    return name;
+    return "APPLE";
 }
 
 std::vector<device*>& corebluetoothcentralplugin::devices()

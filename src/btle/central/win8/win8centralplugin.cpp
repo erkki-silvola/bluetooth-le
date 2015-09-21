@@ -17,7 +17,7 @@ win8centralplugin::win8centralplugin(centralpluginobserver &observer)
 
 }
 
-const std::string& win8centralplugin::name()
+std::string win8centralplugin::name()
 {
     return "WIN8_CENTRAL";
 }

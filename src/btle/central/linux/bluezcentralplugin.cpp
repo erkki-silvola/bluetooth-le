@@ -168,10 +168,9 @@ void bluezcentralplugin::scan_routine()
     }
 }
 
-const std::string& bluezcentralplugin::name()
+std::string bluezcentralplugin::name()
 {
-    static std::string lname("LINUX_CENTRAL");
-    return lname;
+    return "LINUX_CENTRAL";
 }
 
 std::vector<device*>& bluezcentralplugin::devices()

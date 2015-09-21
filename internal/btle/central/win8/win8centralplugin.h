@@ -12,7 +12,7 @@ namespace btle {
 
             public: // from base
 
-                const std::string& name();
+                std::string name();
                 std::vector<device*>& devices();
                 device* allocate_new_device(const bda& addr);
                 int start();
