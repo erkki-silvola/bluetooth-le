@@ -58,7 +58,8 @@ collector::collector()
   flags_(0),
   filters_(),
   state_(STATE_POWERED_UNKNOWN),
-  plugins_available_()
+  plugins_available_(),
+  mutex_()
 {
     centralpluginfactory::instance().populate(plugins_, *this);
     for( std::vector<centralplugininterface*>::const_iterator it = plugins_.begin(); it != plugins_.end(); ++it )
@@ -101,6 +102,7 @@ collector::~collector()
     {
         delete (*it);
     }
+    centralpluginfactory::instance().deplete(plugins_);
 }
 
 /**
@@ -120,6 +122,7 @@ const std::vector<std::string>& collector::plugins_available() const
 int collector::start(const std::string& plugin_name)
 {
     stop();
+    std::unique_lock<std::mutex> lock(mutex_);
     for( std::vector<centralplugininterface*>::iterator it = plugins_.begin(); it != plugins_.end(); ++it )
     {
         if( (*it)->name().compare(plugin_name) != std::string::npos )
@@ -142,8 +145,9 @@ int collector::start(const std::string& plugin_name)
  */
 int collector::auto_start()
 {
-    assert(plugins_.size());
     stop();
+    std::unique_lock<std::mutex> lock(mutex_);
+    assert(plugins_.size());
     plugin_ = plugins_[0];
     connectionhandler_.setup(&plugin_->devices(),this,this);
     if( int err = plugin_->start() )
@@ -159,6 +163,7 @@ int collector::auto_start()
  */
 void collector::stop()
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     if(plugin_)
     {
         plugin_->stop();
@@ -175,6 +180,7 @@ void collector::stop()
  */
 void collector::add_scan_filter(scanfilterbase* filter)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     filters_.push_back(filter);
 }
 
@@ -184,6 +190,7 @@ void collector::add_scan_filter(scanfilterbase* filter)
  */
 void collector::remove_scan_filter(scanfilterbase* filter)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     for( scan_filters::iterator it = filters_.begin(); it != filters_.end(); ++it )
     {
         if( (*it) == filter )
@@ -200,6 +207,11 @@ void collector::remove_scan_filter(scanfilterbase* filter)
  */
 void collector::clear_scan_filters()
 {
+    std::unique_lock<std::mutex> lock(mutex_);
+    for( scan_filters::iterator it = filters_.begin(); it != filters_.end(); ++it )
+    {
+        delete (*it);
+    }
     filters_.clear();
 }
 
@@ -208,6 +220,7 @@ void collector::clear_scan_filters()
  */
 void collector::start_scan()
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if(!(flags_ & CLIENT_SCAN))
     {
@@ -222,6 +235,7 @@ void collector::start_scan()
  */
 void collector::stop_scan()
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if(flags_ & CLIENT_SCAN)
     {
@@ -246,8 +260,9 @@ connectionhandler& collector::connection_handler()
  * @param ascent
  * @return device list in requested order, device ownership is not transferred
  */
-btle::device_list collector::devices_in_order(int rssi_limit,bool ascent) const
+btle::device_list collector::devices_in_order(int rssi_limit,bool ascent)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     device_list list;
     for ( device_list::const_iterator it = plugin_->devices().begin(); it != plugin_->devices().end(); ++it )
@@ -267,6 +282,7 @@ btle::device_list collector::devices_in_order(int rssi_limit,bool ascent) const
  */
 void collector::set_auto_read_values(const uuid_list& list)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     read_uuids_ = list;
 }
 
@@ -279,6 +295,7 @@ void collector::set_auto_read_values(const uuid_list& list)
  */
 void collector::set_auto_notify_values(const uuid_list& list)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     notify_uuids_ = list;
 }
 
@@ -290,6 +307,7 @@ void collector::set_auto_notify_values(const uuid_list& list)
  */
 void collector::connect_device(const bda& addr)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     device* dev(fetch_device(addr));
     if( !dev )
@@ -307,6 +325,7 @@ void collector::connect_device(const bda& addr)
  */
 void collector::connect_device(device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     connectionhandler_.connect_device(dev);
 }
@@ -317,6 +336,7 @@ void collector::connect_device(device& dev)
  */
 void collector::disconnect_device(device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     connectionhandler_.disconnect_device(dev);
 }
@@ -327,6 +347,7 @@ void collector::disconnect_device(device& dev)
  */
 void collector::disconnect_device(const bda& addr)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( device* dev = fetch_device(addr) )
     {
@@ -337,6 +358,7 @@ void collector::disconnect_device(const bda& addr)
 
 void collector::set_mode(collector_mode mode)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     switch(mode)
     {
         case COLLECTOR_POWER_SAVE_OFF:
@@ -360,6 +382,7 @@ void collector::set_mode(collector_mode mode)
  */
 void collector::read_characteristic_value(device& dev, const uuid& uid)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -386,6 +409,7 @@ void collector::read_characteristic_value(device& dev, const uuid& uid)
  */
 void collector::read_characteristic_value(device& dev, const uuid_pair& pair)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -412,6 +436,7 @@ void collector::read_characteristic_value(device& dev, const uuid_pair& pair)
  */
 void collector::write_characteristic_value(device& dev, const uuid& uid, const std::string& data, bool write_with_out_resp)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -448,6 +473,7 @@ void collector::write_characteristic_value(device& dev, const uuid& uid, const s
  */
 void collector::write_characteristic_value(device& dev, const uuid_pair& pair, const std::string& data, bool write_with_out_resp)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -485,7 +511,7 @@ void collector::write_characteristic_value(device& dev, const uuid_pair& pair, c
  */
 void collector::set_characteristic_notify(device& dev, const uuid& uid, bool notify)
 {
-    verify(plugin_)
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -515,6 +541,7 @@ void collector::set_characteristic_notify(device& dev, const uuid& uid, bool not
  */
 void collector::set_characteristic_notify(device& dev, const uuid_pair& pair, bool notify)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -541,6 +568,7 @@ void collector::set_characteristic_notify(device& dev, const uuid_pair& pair, bo
  */
 void collector::update_connection_parameters(btle::device& dev, const connectionparameters& params)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -562,6 +590,7 @@ void collector::update_connection_parameters(btle::device& dev, const connection
  */
 void collector::write_file(btle::device& dev, std::ostream& stream, int identifier)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( dev.state() == btle::DEVICE_CONNECTED )
     {
@@ -607,6 +636,7 @@ void collector::aquire_stop_scan()
 
 void collector::aquire_connect_device(btle::device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( state_ ==STATE_POWERED_ON ) plugin_->connect_device(dev);
     else _log_error("BT NOT POWERED");
@@ -614,6 +644,7 @@ void collector::aquire_connect_device(btle::device& dev)
 
 void collector::aquire_disconnect_device(btle::device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( state_ ==STATE_POWERED_ON ) plugin_->disconnect_device(dev);
     else _log_error("BT NOT POWERED");
@@ -621,6 +652,7 @@ void collector::aquire_disconnect_device(btle::device& dev)
 
 void collector::aquire_cancel_pending_connection(btle::device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     verify(plugin_)
     if( state_ ==STATE_POWERED_ON ) plugin_->cancel_pending_connection(dev);
     else _log_error("BT NOT POWERED");
@@ -629,6 +661,7 @@ void collector::aquire_cancel_pending_connection(btle::device& dev)
 
 void collector::plugin_state_changed(plugin_state state)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     state_ = state;
     switch (state) {
         case STATE_POWERED_ON:
@@ -667,6 +700,7 @@ void collector::process_device_discovered(device& dev, adv_fields& fields, int r
     dev.advertisement_fields() << fields;
     dev.rssi_filter() << rssi;
     // inform connectionhandler
+    std::unique_lock<std::mutex> lock(mutex_);
     connectionhandler_.advertisement_head_received(dev);
     if( flags_ & CLIENT_SCAN )
     {
@@ -693,12 +727,14 @@ void collector::process_device_discovered(device& dev, adv_fields& fields, int r
 
 void collector::device_connected(device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     connectionhandler_.device_connected(dev);
     plugin_->discover_services(dev);
 }
 
 void collector::device_disconnected(device& dev)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     connectionhandler_.device_disconnected(dev);
 }
 
@@ -723,6 +759,7 @@ void collector::device_services_discovered(device& dev, service_list& services, 
 
 void collector::device_characteristics_discovered(device& dev, service& srv, chr_list& chrs, const error& err)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     if( err.code() == 0 )
     {
         // first check auto read

@@ -2,6 +2,7 @@
 #define COLLECTOR_H
 
 #include <sstream>
+#include <mutex>
 
 #include "btle/uuid.h"
 #include "btle/device.h"
@@ -54,7 +55,7 @@ namespace btle {
 
         public:
             
-            device_list devices_in_order(int rssi_limit,bool ascent=false) const;
+            device_list devices_in_order(int rssi_limit,bool ascent=false);
             
         public:
 
@@ -189,6 +190,7 @@ namespace btle {
             scan_filters filters_;
             plugin_state state_;
             std::vector<std::string> plugins_available_;
+            std::mutex mutex_;
         };
     }
 }
