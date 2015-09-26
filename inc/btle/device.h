@@ -1,6 +1,8 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
+#include <mutex>
+
 #include "btle/base.h"
 #include "btle/advertisementdata.h"
 #include "btle/gattdatabase.h"
@@ -75,7 +77,7 @@ namespace btle {
 
     public: // mutex
 
-       // std::mutex& mutex();
+        std::mutex& mutex();
 
     public:
 
@@ -96,7 +98,7 @@ namespace btle {
         btle::advertisement_type advertisement_type_;
         statistics statistics_;
         uint16_t connection_handle_;
-       // std::mutex mutex_;
+        std::mutex mutex_;
     };
 
     typedef std::vector<device*> device_list;

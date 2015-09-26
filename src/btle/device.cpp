@@ -178,8 +178,8 @@ void device::invalidate()
  *
  * @return
  */
-/*std::mutex& device::mutex()
+std::mutex& device::mutex()
 {
     return mutex_;
-}*/
+}
 

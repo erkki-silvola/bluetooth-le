@@ -190,7 +190,7 @@ namespace btle {
             scan_filters filters_;
             plugin_state state_;
             std::vector<std::string> plugins_available_;
-            std::mutex mutex_;
+            std::recursive_mutex mutex_;
         };
     }
 }

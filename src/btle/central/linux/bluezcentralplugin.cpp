@@ -189,11 +189,12 @@ int bluezcentralplugin::start()
     int on = 1;
     if((handle_ = hci_open_dev(id_)) >= 0)
     {
+        //if( fcntl(handle_, F_SETFL, O_NONBLOCK) == 0 )
         //if( ioctl(handle_, FIONBIO, (char *)&on) == 0)
         {
             main_ = std::thread(::routine,this);
-            std::unique_lock<std::mutex> lock(mutex_);
-            started_.wait(lock);
+            //std::unique_lock<std::mutex> lock(mutex_);
+            //started_.wait(lock);
             observer_.plugin_state_changed(btle::STATE_POWERED_ON);
             return 0;
         }
