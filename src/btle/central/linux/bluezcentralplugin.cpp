@@ -35,8 +35,9 @@ using namespace btle::central;
 using namespace btle;
 
 namespace {
+#if 0
     centralpluginregisterer<bluezcentralplugin> registration;
-
+#endif
     void routine(void* context)
     {
         bluezcentralplugin* parent(reinterpret_cast<bluezcentralplugin*>(context));

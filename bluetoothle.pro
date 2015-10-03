@@ -1,5 +1,6 @@
 
 QT       -= gui
+QT       += bluetooth
 
 TARGET = bluetoothle
 TEMPLATE = lib
@@ -24,7 +25,9 @@ HEADERS += \
     internal/btle/central/linux/hciattreadbygroupmessage.h \
     internal/btle/central/linux/hciattreadbytypemessage.h \
     internal/btle/central/linux/hciattreadmessage.h \
-    internal/btle/central/linux/hciattwritemessage.h
+    internal/btle/central/linux/hciattwritemessage.h \
+    internal/btle/central/qt/qtperipheraldevice.h \
+    internal/btle/central/qt/qtcentralplugin.h
 
 SOURCES += \
     src/btle/gatt_services/btlelibservice.cpp \
@@ -36,7 +39,9 @@ SOURCES += \
     src/btle/central/linux/messagebase.cpp \
     src/btle/central/linux/hciattreadbytypemessage.cpp \
     src/btle/central/linux/hciattreadmessage.cpp \
-    src/btle/central/linux/hciattwritemessage.cpp
+    src/btle/central/linux/hciattwritemessage.cpp \
+    src/btle/central/qt/qtcentralplugin.cpp \
+    src/btle/central/qt/qtperipheraldevice.cpp
 # end
 
 SOURCES += \
