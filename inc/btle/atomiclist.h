@@ -24,6 +24,8 @@ namespace btle {
         T pop();
         T pop_wait();
         T pop_wait(int seconds);
+        void wait();
+        void wait(int seconds);
 
     private:
 

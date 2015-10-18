@@ -59,4 +59,19 @@ T atomiclist<T>::pop_wait(int seconds)
     return ret;
 }
 
+template <typename T>
+void atomiclist<T>::wait()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    cond_.wait(lock);
+}
+
+template <typename T>
+void atomiclist<T>::wait(int seconds)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    cond_.wait_for(lock,std::chrono::seconds(seconds));
+}
+
+
 #endif // ATOMICLIST_HPP

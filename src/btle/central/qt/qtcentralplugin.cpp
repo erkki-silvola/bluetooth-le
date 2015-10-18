@@ -24,7 +24,7 @@ qtcenralplugin::qtcenralplugin(centralpluginobserver& observer)
 
 std::string qtcenralplugin::name()
 {
-    return "";
+    return "QtBluetooth";
 }
 
 std::vector<device*>& qtcenralplugin::devices()
