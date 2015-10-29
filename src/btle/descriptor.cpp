@@ -39,6 +39,13 @@ descriptor::descriptor(
 {
 }
 
+descriptor::descriptor(uint16_t handle)
+: base(),
+  type_(0),
+  handle_(handle)
+{
+}
+
 descriptor::descriptor(const descriptor& other)
 : base(other),
   type_(other.type_),

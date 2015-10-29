@@ -65,6 +65,7 @@ namespace btle {
         bool contains_descriptor_type(uint16_t type) const;
         descriptor* descriptor_by_type(uint16_t type);
         std::vector<descriptor>& descriptors();
+        const std::vector<descriptor>& descriptors() const;
         
     public: // from base
         

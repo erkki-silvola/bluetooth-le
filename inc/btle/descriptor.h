@@ -29,6 +29,7 @@ namespace btle {
         descriptor(uint16_t type,
                    uint16_t handle,
                    btle::characteristic* parent);
+        descriptor(uint16_t handle);
         descriptor(const descriptor& other);
 
     public: // api

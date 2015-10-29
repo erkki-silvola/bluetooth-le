@@ -174,6 +174,11 @@ std::vector<descriptor>& characteristic::descriptors()
     return descriptors_;
 }
 
+const std::vector<descriptor>& characteristic::descriptors() const
+{
+    return descriptors_;
+}
+
 std::string characteristic::to_string() const
 {
     return uuid_.to_string();

@@ -14,6 +14,8 @@ namespace btle {
             public:
                 qtperipheraldevice(const btle::bda& addr);
 
+                void discover_services();
+
             public slots:
 
                 void services_discovered(const QBluetoothUuid&);

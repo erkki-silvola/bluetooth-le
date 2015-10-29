@@ -75,6 +75,7 @@ void qtcenralplugin::cancel_pending_connection(device& dev)
 
 void qtcenralplugin::discover_services(device& dev)
 {
+    qtperipheraldevice& ndev=reinterpret_cast<qtperipheraldevice&>(dev);
 
 }
 
