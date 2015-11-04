@@ -1,14 +1,13 @@
 
 #include "btle/central/qt/qtperipheraldevice.h"
+#include "btle/central/centralpluginobserver.h"
+#include "btle/log.h"
 
 using namespace btle::central::qt;
 
-qtperipheraldevice::qtperipheraldevice(const btle::bda& addr)
-: device(addr)
-{
-}
-
-void qtperipheraldevice::discover_services()
+qtperipheraldevice::qtperipheraldevice(const btle::bda& addr, centralpluginobserver &observer)
+: device(addr),
+  observer_(observer)
 {
     ctrl_ = new QLowEnergyController(QBluetoothAddress(QString::fromStdString(bda_.to_string())));
     connect(ctrl_, SIGNAL(serviceDiscovered(QBluetoothUuid)),
@@ -17,10 +16,40 @@ void qtperipheraldevice::discover_services()
             this, SLOT(service_discovery_done()));
     connect(ctrl_, SIGNAL(error(QLowEnergyController::Error)),
             this, SLOT(controller_error(QLowEnergyController::Error)));
+    connect(ctrl_, SIGNAL(connected()),
+                this, SLOT(device_connected()));
+    connect(ctrl_, SIGNAL(disconnected()),
+            this, SLOT(device_disconnected()));
+}
+
+void qtperipheraldevice::connect_device()
+{
+    ctrl_->connectToDevice();
+}
+
+void qtperipheraldevice::disconnect_device()
+{
+    ctrl_->disconnectFromDevice();
+}
+
+void qtperipheraldevice::discover_services()
+{
+    ctrl_->discoverServices();
+}
+
+void qtperipheraldevice::device_connected()
+{
+    observer_.device_connected(*this);
+}
+
+void qtperipheraldevice::device_disconnected()
+{
+    observer_.device_disconnected(*this);
 }
 
 void qtperipheraldevice::services_discovered(const QBluetoothUuid& gatt)
 {
+    _log("service discovered: %s", gatt.toString().toLocal8Bit().data());
     uuids_.push_back(gatt);
 }
 
@@ -32,6 +61,12 @@ void qtperipheraldevice::service_discovery_done()
         qservices_.push_back(srv);
         btle::service nsrv = btle::service(btle::uuid(srv->serviceUuid().toString().toStdString()));
         db_ << nsrv;
+        connect(srv, SIGNAL(stateChanged(QLowEnergyService::ServiceState)),
+                this, SLOT(service_state_changed(QLowEnergyService::ServiceState)));
+        connect(srv, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+                this, SLOT(characteristic_updated(QLowEnergyCharacteristic,QByteArray)));
+        connect(srv, SIGNAL(descriptorWritten(QLowEnergyDescriptor,QByteArray)),
+                this, SLOT(descriptor_written(QLowEnergyDescriptor,QByteArray)));
         srv->discoverDetails();
     }
 }
@@ -39,16 +74,26 @@ void qtperipheraldevice::service_discovery_done()
 void qtperipheraldevice::controller_error(
     QLowEnergyController::Error err)
 {
-
+    _log_error(" %d",err);
 }
 
 void qtperipheraldevice::service_state_changed(
     QLowEnergyService::ServiceState s)
 {
+    _log("state changed: %d", s);
     switch (s)
     {
         case QLowEnergyService::ServiceDiscovered:
         {
+            for(std::vector<QLowEnergyService*>::iterator it = qservices_.begin(); it != qservices_.end(); ++it)
+            {
+                // QList<QLowEnergyCharacteristic> characteristics()
+                for(QList<QLowEnergyCharacteristic>::iterator itc = (*it)->characteristics().begin(); itc != (*it)->characteristics().end(); ++itc )
+                {
+
+                }
+               // _log("service discovered: %s", (*it)->toString().toLocal8Bit().data());
+            }
              /*const QLowEnergyCharacteristic hrChar = m_service->characteristic(
                          QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
              if (!hrChar.isValid()) {
@@ -63,8 +108,6 @@ void qtperipheraldevice::service_state_changed(
                  setMessage("Measuring");
                  m_start = QDateTime::currentDateTime();
              }*/
-
-             QBluetoothUuid::HeartRateMeasurement;
 
              break;
          }

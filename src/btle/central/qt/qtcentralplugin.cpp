@@ -60,23 +60,26 @@ void qtcenralplugin::stop_scan()
 
 void qtcenralplugin::connect_device(device& dev)
 {
-
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.connect_device();
 }
 
 void qtcenralplugin::disconnect_device(device& dev)
 {
-
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.disconnect_device();
 }
 
 void qtcenralplugin::cancel_pending_connection(device& dev)
 {
-
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.disconnect_device();
 }
 
 void qtcenralplugin::discover_services(device& dev)
 {
-    qtperipheraldevice& ndev=reinterpret_cast<qtperipheraldevice&>(dev);
-
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.discover_services();
 }
 
 void qtcenralplugin::discover_characteristics(device& dev, const service& srv)
@@ -126,11 +129,12 @@ void qtcenralplugin::deviceDiscovered(const QBluetoothDeviceInfo& info)
         _log("device discovered: %s",info.name().toStdString().c_str());
        btle::adv_fields fields;
        fields[btle::GAP_ADTYPE_LOCAL_NAME_COMPLETE]=advertisementdata(info.name().toStdString());
-       //TODO add more
+       //TODO add more, stupid qt api does not provide raw adv data
        qtperipheraldevice* dev = find_device(info);
        if(dev==NULL)
        {
-            dev = new qtperipheraldevice(btle::bda(info.address().toString().toStdString()));
+            dev = new qtperipheraldevice(btle::bda(info.address().toString().toStdString()),observer_);
+            devices_.push_back(dev);
        }
        observer_.device_discovered(*dev,fields,info.rssi());
     }

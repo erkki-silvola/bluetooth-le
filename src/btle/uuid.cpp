@@ -57,13 +57,32 @@ uuid::uuid(const std::string& uuid_str)
         case UUID_16_128_FOMAT_LEN:
         {
             std::string::size_type pos(uuid_str.find(UUID_16BIT_128_POST_FIX,
-                                       sizeof(UUID_16BIT_128_POST_FIX)));
+                                       0));
             if( pos != std::string::npos ){
                 std::string uuid_16( uuid_str.substr(pos - 5,4) );
                 std::stringstream ss;
                 ss << std::hex << uuid_16;
                 ss >> uuid16_;
                 //value_ = "";
+            }
+            break;
+        }
+        case 38: // qt uuid
+        {
+            // ex. "{00001800-0000-1000-8000-00805f9b34fb}";
+            std::string::size_type pos(uuid_str.find(UUID_16BIT_128_POST_FIX,
+                                       0));
+            if( pos != std::string::npos ){
+                std::string uuid_16( uuid_str.substr(pos - 4,4) );
+                std::stringstream ss;
+                ss << std::hex << uuid_16;
+                ss >> uuid16_;
+                //value_ = "";
+            }
+            else
+            {
+                // remove front bracket and trailing bracket
+
             }
             break;
         }

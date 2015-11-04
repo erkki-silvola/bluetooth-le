@@ -8,15 +8,23 @@
 
 namespace btle {
     namespace central {
+        class centralpluginobserver;
         namespace qt {
             class qtperipheraldevice: public QObject, public btle::device{
                 Q_OBJECT
             public:
-                qtperipheraldevice(const btle::bda& addr);
+                qtperipheraldevice(const btle::bda& addr,centralpluginobserver& observer);
+
+                void connect_device();
+
+                void disconnect_device();
 
                 void discover_services();
 
             public slots:
+
+                void device_connected();
+                void device_disconnected();
 
                 void services_discovered(const QBluetoothUuid&);
                 void service_discovery_done();
@@ -32,6 +40,7 @@ namespace btle {
 
             private:
 
+                centralpluginobserver& observer_;
                 QLowEnergyController* ctrl_;
                 std::vector<QBluetoothUuid> uuids_;
                 std::vector<QLowEnergyService*> qservices_;
