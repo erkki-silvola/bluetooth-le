@@ -20,9 +20,11 @@ namespace btle {
 
         const characteristic* fetch_characteristic(const uuid& uid) const;
         const characteristic* fetch_characteristic(const uuid_pair& pair) const;
+        characteristic* fetch_characteristic(uint16_t handle);
 
         const service* fetch_service(const uuid& uid) const;
         const service* fetch_service_by_chr_uuid(const uuid& uid) const;
+        service* fetch_service_by_chr_handle(uint16_t handle);
         const service* fetch_service_by_descriptor(const descriptor& desc) const;
 
         void update_characteristic_data(const service& srv, const characteristic& chr, const std::string& data);

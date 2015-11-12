@@ -1,4 +1,6 @@
 
+#include <assert.h>
+
 #include "btle/central/qt/qtperipheraldevice.h"
 #include "btle/central/centralpluginobserver.h"
 #include "btle/log.h"
@@ -7,7 +9,8 @@ using namespace btle::central::qt;
 
 qtperipheraldevice::qtperipheraldevice(const btle::bda& addr, centralpluginobserver &observer)
 : device(addr),
-  observer_(observer)
+  observer_(observer),
+  ctr_(0)
 {
     ctrl_ = new QLowEnergyController(QBluetoothAddress(QString::fromStdString(bda_.to_string())));
     connect(ctrl_, SIGNAL(serviceDiscovered(QBluetoothUuid)),
@@ -34,7 +37,34 @@ void qtperipheraldevice::disconnect_device()
 
 void qtperipheraldevice::discover_services()
 {
+    ctr_ = 0;
     ctrl_->discoverServices();
+}
+
+void qtperipheraldevice::set_characteristic_notify(const btle::service& srv, const btle::characteristic& chr, bool notify)
+{
+    for(std::vector<QLowEnergyService*>::iterator it = qservices_.begin(); it != qservices_.end(); ++it)
+    {
+        if( (*it) == (QLowEnergyService*)srv.instance_id())
+        {
+            const QLowEnergyCharacteristic nchr = (*it)->characteristic(QBluetoothUuid(chr.uuid().uuid16bit()));
+            if(nchr.isValid())
+            {
+                const QLowEnergyDescriptor desc = nchr.descriptor(
+                                QBluetoothUuid::ClientCharacteristicConfiguration);
+                if(desc.isValid())
+                {
+                    bool indicate = chr.properties() & btle::GATT_INDICATE;
+                    QByteArray bytes = notify ? (!indicate ?
+                                                 QByteArray::fromHex("0100") : QByteArray::fromHex("0200")) :
+                                                (!indicate?
+                                                 QByteArray::fromHex("0000") : QByteArray::fromHex("0100"));
+                    (*it)->writeDescriptor(desc, bytes);
+                }
+            }
+            break;
+        }
+    }
 }
 
 void qtperipheraldevice::device_connected()
@@ -59,8 +89,6 @@ void qtperipheraldevice::service_discovery_done()
     {
         QLowEnergyService* srv = ctrl_->createServiceObject(*it,NULL);
         qservices_.push_back(srv);
-        btle::service nsrv = btle::service(btle::uuid(srv->serviceUuid().toString().toStdString()));
-        db_ << nsrv;
         connect(srv, SIGNAL(stateChanged(QLowEnergyService::ServiceState)),
                 this, SLOT(service_state_changed(QLowEnergyService::ServiceState)));
         connect(srv, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
@@ -80,36 +108,49 @@ void qtperipheraldevice::controller_error(
 void qtperipheraldevice::service_state_changed(
     QLowEnergyService::ServiceState s)
 {
-    _log("state changed: %d", s);
+    _log("device gatt state changed: %d", s);
     switch (s)
     {
         case QLowEnergyService::ServiceDiscovered:
         {
-            for(std::vector<QLowEnergyService*>::iterator it = qservices_.begin(); it != qservices_.end(); ++it)
+            ++ctr_;
+            if( qservices_.size() == ctr_ )
             {
-                // QList<QLowEnergyCharacteristic> characteristics()
-                for(QList<QLowEnergyCharacteristic>::iterator itc = (*it)->characteristics().begin(); itc != (*it)->characteristics().end(); ++itc )
+                for(QLowEnergyService* it : qservices_)
                 {
+                    QList<QLowEnergyCharacteristic> chrs = it->characteristics();
+                    btle::service nsrv = btle::service(btle::uuid((it)->serviceUuid().toString().toStdString()),(long)it);
+                    const service* stored = db_.fetch_service(nsrv.uuid());
+                    if(stored == NULL)
+                    {
+                        for( QLowEnergyCharacteristic& itc: chrs)
+                        {
+                            // TODO fix parent
+                            btle::characteristic nchr = btle::characteristic(
+                                        btle::uuid(itc.uuid().toString().toStdString()),
+                                        itc.properties(),
+                                        itc.handle(),
+                                        itc.handle()+1,
+                                        NULL);
 
-                }
-               // _log("service discovered: %s", (*it)->toString().toLocal8Bit().data());
+                            QList<QLowEnergyDescriptor> ndescriptor = itc.descriptors();
+                            for(QLowEnergyDescriptor& itd : ndescriptor)
+                            {
+                                btle::descriptor desc(itd.type(),
+                                                      itd.handle(),
+                                                      NULL);
+                                nchr << desc;
+                            }
+
+                            nsrv << nchr;
+                        }
+                        db_ << nsrv;
+                        btle::error err(0);
+                        observer_.device_characteristics_discovered(*this,db_.services().back(),db_.services().back().characteristics(),err);
+                    }
+                 }
             }
-             /*const QLowEnergyCharacteristic hrChar = m_service->characteristic(
-                         QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
-             if (!hrChar.isValid()) {
-                 setMessage("HR Data not found.");
-                 break;
-             }
-
-             const QLowEnergyDescriptor m_notificationDesc = hrChar.descriptor(
-                         QBluetoothUuid::ClientCharacteristicConfiguration);
-             if (m_notificationDesc.isValid()) {
-                 m_service->writeDescriptor(m_notificationDesc, QByteArray::fromHex("0100"));
-                 setMessage("Measuring");
-                 m_start = QDateTime::currentDateTime();
-             }*/
-
-             break;
+            break;
          }
          default:
              //nothing for now
@@ -121,15 +162,28 @@ void qtperipheraldevice::characteristic_updated(
     const QLowEnergyCharacteristic &c,
     const QByteArray &value)
 {
-
+    service* srv = db_.fetch_service_by_chr_handle(c.handle());
+    characteristic* chr = db_.fetch_characteristic(c.handle());
+    std::string bytes(value.toStdString());
+    assert(srv && chr);
+    if( chr->properties() & GATT_INDICATE ||
+        chr->properties() & GATT_NOTIFY)
+    {
+        observer_.device_characteristic_notify_data_updated(*this,*srv,*chr,bytes);
+    }
+    else
+    {
+        btle::error err(0);
+        observer_.device_characteristic_read(*this,*srv,*chr,bytes,err);
+    }
 }
 
 void qtperipheraldevice::descriptor_written(
     const QLowEnergyDescriptor &d,
     const QByteArray &value)
 {
-    btle::descriptor desc(d.handle());
-    const service* srv = db_.fetch_service_by_descriptor(desc);
+    //btle::descriptor desc(d.handle());
+    //const service* srv = db_.fetch_service_by_descriptor(desc);
     // TODO
 }
 

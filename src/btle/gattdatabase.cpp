@@ -64,6 +64,21 @@ const characteristic* gattdatabase::fetch_characteristic(const uuid_pair& pair) 
     return NULL;
 }
 
+characteristic* gattdatabase::fetch_characteristic(uint16_t handle)
+{
+    for( std::vector<service>::iterator it_srv = services_.begin(); it_srv != services_.end(); ++it_srv )
+    {
+        for(chr_iterator it_chr = it_srv->characteristics().begin(); it_chr != it_srv->characteristics().end(); ++it_chr )
+        {
+            if(it_chr->attribute_handle() == handle)
+            {
+                return (characteristic*)&(*it_chr);
+            }
+        }
+    }
+    return NULL;
+}
+
 const service* gattdatabase::fetch_service(const uuid& uid) const
 {
     for( std::vector<service>::const_iterator it_srv = services_.begin(); it_srv != services_.end(); ++it_srv )
@@ -85,6 +100,21 @@ const service* gattdatabase::fetch_service_by_chr_uuid(const uuid& uid) const
             if(it_chr->uuid() == uid)
             {
                 return (const service*)&(*it_srv);
+            }
+        }
+    }
+    return NULL;
+}
+
+service* gattdatabase::fetch_service_by_chr_handle(uint16_t handle)
+{
+    for( std::vector<service>::iterator it_srv = services_.begin(); it_srv != services_.end(); ++it_srv )
+    {
+        for(chr_iterator it_chr = it_srv->characteristics().begin(); it_chr != it_srv->characteristics().end(); ++it_chr )
+        {
+            if(it_chr->attribute_handle() == handle)
+            {
+                return (service*)&(*it_srv);
             }
         }
     }

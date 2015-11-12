@@ -14,12 +14,10 @@ namespace btle {
                 Q_OBJECT
             public:
                 qtperipheraldevice(const btle::bda& addr,centralpluginobserver& observer);
-
                 void connect_device();
-
                 void disconnect_device();
-
                 void discover_services();
+                void set_characteristic_notify(const btle::service& srv, const btle::characteristic& chr, bool notify);
 
             public slots:
 
@@ -44,6 +42,7 @@ namespace btle {
                 QLowEnergyController* ctrl_;
                 std::vector<QBluetoothUuid> uuids_;
                 std::vector<QLowEnergyService*> qservices_;
+                int ctr_;
             };
         }
     }

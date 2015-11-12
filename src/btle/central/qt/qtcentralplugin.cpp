@@ -84,22 +84,23 @@ void qtcenralplugin::discover_services(device& dev)
 
 void qtcenralplugin::discover_characteristics(device& dev, const service& srv)
 {
-
+    // do nothing, this is allready done
 }
 
 void qtcenralplugin::read_characteristic_value(device& dev,const service& srv, const characteristic& chr)
 {
-
+    // TODO
 }
 
 void qtcenralplugin::write_characteristic_value(device& dev,const service& srv, const characteristic& chr, const std::string& data, characteristic_properties type)
 {
-
+    // TODO
 }
 
 void qtcenralplugin::set_characteristic_notify(device& dev,const service& srv, const characteristic& chr, bool notify)
 {
-
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.set_characteristic_notify(srv,chr,notify);
 }
 
 void qtcenralplugin::write_descriptor(device& dev, const service& srv, const characteristic& chr, descriptor& desc, bool notify)
