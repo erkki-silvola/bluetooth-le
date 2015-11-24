@@ -18,6 +18,7 @@ namespace btle {
                 void disconnect_device();
                 void discover_services();
                 void set_characteristic_notify(const btle::service& srv, const btle::characteristic& chr, bool notify);
+                void read_characteristic(const btle::service& srv, const btle::characteristic& chr);
 
             public slots:
 
@@ -34,6 +35,10 @@ namespace btle {
                                           const QByteArray &value);
                 void descriptor_written(const QLowEnergyDescriptor &d,
                                           const QByteArray &value);
+                void characteristic_read(const QLowEnergyCharacteristic &info,
+                                        const QByteArray &value);
+                void characteristic_written(const QLowEnergyCharacteristic &info,
+                                           const QByteArray &value);
                 void service_error(QLowEnergyService::ServiceError e);
 
             private:

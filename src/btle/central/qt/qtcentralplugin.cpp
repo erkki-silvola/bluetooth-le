@@ -90,6 +90,8 @@ void qtcenralplugin::discover_characteristics(device& dev, const service& srv)
 void qtcenralplugin::read_characteristic_value(device& dev,const service& srv, const characteristic& chr)
 {
     // TODO
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.read_characteristic(srv,chr);
 }
 
 void qtcenralplugin::write_characteristic_value(device& dev,const service& srv, const characteristic& chr, const std::string& data, characteristic_properties type)
