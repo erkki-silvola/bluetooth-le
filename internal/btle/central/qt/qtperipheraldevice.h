@@ -19,6 +19,7 @@ namespace btle {
                 void discover_services();
                 void set_characteristic_notify(const btle::service& srv, const btle::characteristic& chr, bool notify);
                 void read_characteristic(const btle::service& srv, const btle::characteristic& chr);
+                void write_characteristic(const btle::service& srv, const btle::characteristic& chr, const std::string &data, bool response);
 
             public slots:
 

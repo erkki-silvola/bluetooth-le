@@ -83,6 +83,21 @@ void qtperipheraldevice::read_characteristic(const btle::service& srv, const btl
     }
 }
 
+void qtperipheraldevice::write_characteristic(const btle::service& srv, const btle::characteristic& chr, const std::string& data, bool response)
+{
+    for(std::vector<QLowEnergyService*>::iterator it = qservices_.begin(); it != qservices_.end(); ++it)
+    {
+        if( (*it) == (QLowEnergyService*)srv.instance_id())
+        {
+            const QLowEnergyCharacteristic nchr = (*it)->characteristic(QBluetoothUuid(chr.uuid().uuid16bit()));
+            if(nchr.isValid())
+            {
+                (*it)->writeCharacteristic(nchr,QByteArray::fromStdString(data),response ? QLowEnergyService::WriteWithResponse : QLowEnergyService::WriteWithoutResponse);
+            }
+            break;
+        }
+    }
+}
 
 void qtperipheraldevice::device_connected()
 {
@@ -214,10 +229,16 @@ void qtperipheraldevice::characteristic_read(
 }
 
 void qtperipheraldevice::characteristic_written(
-    const QLowEnergyCharacteristic &info,
+    const QLowEnergyCharacteristic &c,
     const QByteArray &value)
 {
-
+    service* srv = db_.fetch_service_by_chr_handle(c.handle());
+    characteristic* chr = db_.fetch_characteristic(c.handle());
+    std::string bytes(value.toStdString());
+    chr->set_string_value(bytes);
+    assert(srv && chr);
+    error err(0);
+    observer_.device_characteristic_written(*this,*srv,*chr,err);
 }
 
 
