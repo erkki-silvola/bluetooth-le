@@ -96,7 +96,8 @@ void qtcenralplugin::read_characteristic_value(device& dev,const service& srv, c
 
 void qtcenralplugin::write_characteristic_value(device& dev,const service& srv, const characteristic& chr, const std::string& data, characteristic_properties type)
 {
-    // TODO
+    qtperipheraldevice& ndev=(qtperipheraldevice&)(dev);
+    ndev.write_characteristic(srv,chr,data, type == btle::GATT_WRITE );
 }
 
 void qtcenralplugin::set_characteristic_notify(device& dev,const service& srv, const characteristic& chr, bool notify)
